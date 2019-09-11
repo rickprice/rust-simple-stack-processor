@@ -88,6 +88,7 @@ pub enum Opcode {
     GETLP,
     GETLP2,
     DROPLP,
+    CMPGELP,
 }
 
 pub struct StackMachineState {
@@ -345,16 +346,16 @@ impl StackMachine {
                 }
                 Opcode::NOP => {}
                 Opcode::PUSHLP => {
-                    let x = self
+                    let ts = self
                         .st
                         .number_stack
                         .pop()
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.loop_stack.push(x);
+                    self.st.loop_stack.push(ts);
                 }
                 Opcode::INCLP => match self.st.loop_stack.last_mut() {
-                    Some(x) => {
-                        *x = *x + 1;
+                    Some(lc) => {
+                        *lc = *lc + 1;
                     }
                     None => {
                         return Err(StackMachineError::LoopStackUnderflow);
@@ -368,8 +369,8 @@ impl StackMachine {
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
 
                     match self.st.loop_stack.last_mut() {
-                        Some(x) => {
-                            *x = *x + increment;
+                        Some(lc) => {
+                            *lc = *lc + increment;
                         }
                         None => {
                             return Err(StackMachineError::LoopStackUnderflow);
@@ -377,27 +378,44 @@ impl StackMachine {
                     }
                 }
                 Opcode::GETLP => {
-                    let x = self
+                    let lc = self
                         .st
                         .loop_stack
                         .last()
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
-                    self.st.number_stack.push(*x);
+                    self.st.number_stack.push(*lc);
                 }
                 Opcode::GETLP2 => {
-                    let x = self
+                    let lc = self
                         .st
                         .loop_stack
                         .get(self.st.loop_stack.len() - 2)
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
-                    self.st.number_stack.push(*x);
+                    self.st.number_stack.push(*lc);
                 }
                 Opcode::DROPLP => {
-                    let _x = self
+                    let _lc = self
                         .st
                         .loop_stack
                         .pop()
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
+                }
+                Opcode::CMPGELP => {
+                    let lc = self
+                        .st
+                        .loop_stack
+                        .last()
+                        .ok_or(StackMachineError::LoopStackUnderflow)?;
+                    let ts = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::LoopStackUnderflow)?;
+                        if *lc >= ts {
+                            self.st.number_stack.push(0);
+                        } else {
+                            self.st.number_stack.push(1);
+                        }
                 }
             };
             if pc_reset == false {
