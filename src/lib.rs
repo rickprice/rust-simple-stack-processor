@@ -417,6 +417,80 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_execute_pushlp() {
+        let mut sm = StackMachine::new();
+
+        // Populate the number stack
+        sm.st.number_stack.extend_from_slice(&[321, 39483]);
+        // Put the opcodes into the *memory*
+        sm.st
+            .opcodes
+            .extend_from_slice(&[Opcode::PUSHLP, Opcode::RET]);
+
+        // Execute the instructions
+        sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+        assert_eq!(sm.st.number_stack, vec![321]);
+        assert_eq!(sm.st.loop_stack, vec![39483]);
+    }
+
+    #[test]
+    fn test_execute_inclp() {
+        let mut sm = StackMachine::new();
+
+        // Populate the number stack
+        sm.st.number_stack.extend_from_slice(&[321, 39483]);
+        // Put the opcodes into the *memory*
+        sm.st
+            .opcodes
+            .extend_from_slice(&[Opcode::PUSHLP, Opcode::INCLP, Opcode::RET]);
+
+        // Execute the instructions
+        sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+        assert_eq!(sm.st.number_stack, vec![321]);
+        assert_eq!(sm.st.loop_stack, vec![39484]);
+    }
+
+    #[test]
+    fn test_execute_addlp() {
+        let mut sm = StackMachine::new();
+
+        // Populate the number stack
+        sm.st.number_stack.extend_from_slice(&[321, 39483]);
+        // Put the opcodes into the *memory*
+        sm.st
+            .opcodes
+            .extend_from_slice(&[Opcode::PUSHLP, Opcode::ADDLP, Opcode::RET]);
+
+        // Execute the instructions
+        sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+        assert_eq!(sm.st.number_stack, vec![]);
+        assert_eq!(sm.st.loop_stack, vec![39804]);
+    }
+
+    #[test]
+    fn test_execute_getlp() {
+        let mut sm = StackMachine::new();
+
+        // Populate the number stack
+        sm.st.number_stack.extend_from_slice(&[321, 39483]);
+        // Populate the loop stack
+        sm.st.number_stack.extend_from_slice(&[3210, 394836]);
+        // Put the opcodes into the *memory*
+        sm.st
+            .opcodes
+            .extend_from_slice(&[Opcode::GETLP, Opcode::RET]);
+
+        // Execute the instructions
+        sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+        assert_eq!(sm.st.number_stack, vec![321, 39483, 394836]);
+        assert_eq!(sm.st.loop_stack, vec![3210, 394836]);
+    }
+
+    #[test]
     fn test_execute_jr_forward() {
         let mut sm = StackMachine::new();
 
