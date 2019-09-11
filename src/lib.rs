@@ -9,6 +9,7 @@ pub enum GasLimit {
 pub enum StackMachineError {
     UnkownError,
     NumberStackUnderflow,
+    LoopStackUnderflow,
     UnhandledTrap,
     RanOutOfGas,
 }
@@ -78,11 +79,18 @@ pub enum Opcode {
     DUP,
     TRAP,
     NOP,
+    PUSHLP,
+    INCLP,
+    ADDLP,
+    GETLP,
+    GETLP2,
+    DROPLP,
 }
 
 pub struct StackMachineState {
     pub number_stack: Vec<i64>,
     return_stack: Vec<usize>,
+    loop_stack: Vec<i64>,
     pub opcodes: Vec<Opcode>,
     pc: usize,
     gas_used: u64,
@@ -93,6 +101,7 @@ impl StackMachineState {
         StackMachineState {
             number_stack: Vec::new(),
             return_stack: Vec::new(),
+            loop_stack: Vec::new(),
             opcodes: Vec::new(),
             pc: 0,
             gas_used: 0,
@@ -332,6 +341,61 @@ impl StackMachine {
                     return Err(StackMachineError::UnhandledTrap);
                 }
                 Opcode::NOP => {}
+                Opcode::PUSHLP => {
+                    let x = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    self.st.loop_stack.push(x);
+                }
+                Opcode::INCLP => match self.st.loop_stack.last_mut() {
+                    Some(x) => {
+                        *x = *x + 1;
+                    }
+                    None => {
+                        return Err(StackMachineError::LoopStackUnderflow);
+                    }
+                },
+                Opcode::ADDLP => {
+                    let increment = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+
+                    match self.st.loop_stack.last_mut() {
+                        Some(x) => {
+                            *x = *x + increment;
+                        }
+                        None => {
+                            return Err(StackMachineError::LoopStackUnderflow);
+                        }
+                    }
+                }
+                Opcode::GETLP => {
+                    let x = self
+                        .st
+                        .loop_stack
+                        .last()
+                        .ok_or(StackMachineError::LoopStackUnderflow)?;
+                    self.st.number_stack.push(*x);
+                }
+                Opcode::GETLP2 => {
+                    let x = self
+                        .st
+                        .loop_stack
+                        .get(self.st.loop_stack.len() - 2)
+                        .ok_or(StackMachineError::LoopStackUnderflow)?;
+                    self.st.number_stack.push(*x);
+                }
+                Opcode::DROPLP => {
+                    let _x = self
+                        .st
+                        .loop_stack
+                        .pop()
+                        .ok_or(StackMachineError::LoopStackUnderflow)?;
+                }
             };
             if pc_reset == false {
                 self.st.pc += 1;
