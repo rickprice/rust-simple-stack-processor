@@ -687,3 +687,63 @@
         assert_eq!(sm.st.number_stack, vec![321, 39483, 3210]);
         assert_eq!(sm.st.loop_stack, vec![3210, 394836]);
     }
+
+    #[test]
+    fn test_execute_cmpgelp_eq() {
+        let mut sm = StackMachine::new();
+
+        // Populate the number stack
+        sm.st.number_stack.extend_from_slice(&[321, 39483]);
+        // Populate the loop stack
+        sm.st.loop_stack.extend_from_slice(&[3210, 39483]);
+        // Put the opcodes into the *memory*
+        sm.st
+            .opcodes
+            .extend_from_slice(&[Opcode::CMPGELP, Opcode::RET]);
+
+        // Execute the instructions
+        sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+        assert_eq!(sm.st.number_stack, vec![321, 0]);
+        assert_eq!(sm.st.loop_stack, vec![3210, 39483]);
+    }
+
+    #[test]
+    fn test_execute_cmpgelp_gt() {
+        let mut sm = StackMachine::new();
+
+        // Populate the number stack
+        sm.st.number_stack.extend_from_slice(&[321, 39483]);
+        // Populate the loop stack
+        sm.st.loop_stack.extend_from_slice(&[3210, 39484]);
+        // Put the opcodes into the *memory*
+        sm.st
+            .opcodes
+            .extend_from_slice(&[Opcode::CMPGELP, Opcode::RET]);
+
+        // Execute the instructions
+        sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+        assert_eq!(sm.st.number_stack, vec![321, 0]);
+        assert_eq!(sm.st.loop_stack, vec![3210, 39484]);
+    }
+
+    #[test]
+    fn test_execute_cmpgelp_lt() {
+        let mut sm = StackMachine::new();
+
+        // Populate the number stack
+        sm.st.number_stack.extend_from_slice(&[321, 39483]);
+        // Populate the loop stack
+        sm.st.loop_stack.extend_from_slice(&[3210, 39482]);
+        // Put the opcodes into the *memory*
+        sm.st
+            .opcodes
+            .extend_from_slice(&[Opcode::CMPGELP, Opcode::RET]);
+
+        // Execute the instructions
+        sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+        assert_eq!(sm.st.number_stack, vec![321, 1]);
+        assert_eq!(sm.st.loop_stack, vec![3210, 39482]);
+    }
