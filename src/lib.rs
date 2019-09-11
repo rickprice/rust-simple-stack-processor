@@ -61,7 +61,7 @@ impl<'a> HandleTrap for TrapHandler<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Opcode {
     JMP,
     JR,
@@ -411,11 +411,11 @@ impl StackMachine {
                         .number_stack
                         .pop()
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
-                        if *lc >= ts {
-                            self.st.number_stack.push(0);
-                        } else {
-                            self.st.number_stack.push(1);
-                        }
+                    if *lc >= ts {
+                        self.st.number_stack.push(0);
+                    } else {
+                        self.st.number_stack.push(1);
+                    }
                 }
             };
             if pc_reset == false {
