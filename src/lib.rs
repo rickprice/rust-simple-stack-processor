@@ -88,13 +88,14 @@ pub enum Opcode {
     GETLP,
     GETLP2,
     DROPLP,
-    CMPGELP,
+    CMPLOOP,
 }
 
 pub struct StackMachineState {
     pub number_stack: Vec<i64>,
     return_stack: Vec<usize>,
-    loop_stack: Vec<i64>,
+    // current index, max_index
+    loop_stack: Vec<(i64, i64)>,
     pub opcodes: Vec<Opcode>,
     pc: usize,
     gas_used: u64,
@@ -346,16 +347,21 @@ impl StackMachine {
                 }
                 Opcode::NOP => {}
                 Opcode::PUSHLP => {
-                    let ts = self
+                    let current_index = self
                         .st
                         .number_stack
                         .pop()
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.loop_stack.push(ts);
+                    let max_index = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    self.st.loop_stack.push((current_index, max_index));
                 }
                 Opcode::INCLP => match self.st.loop_stack.last_mut() {
-                    Some(lc) => {
-                        *lc = *lc + 1;
+                    Some((current_index, _max_index)) => {
+                        *current_index = *current_index + 1;
                     }
                     None => {
                         return Err(StackMachineError::LoopStackUnderflow);
@@ -369,8 +375,8 @@ impl StackMachine {
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
 
                     match self.st.loop_stack.last_mut() {
-                        Some(lc) => {
-                            *lc = *lc + increment;
+                        Some((current_index, _max_index)) => {
+                            *current_index = *current_index + increment;
                         }
                         None => {
                             return Err(StackMachineError::LoopStackUnderflow);
@@ -378,40 +384,35 @@ impl StackMachine {
                     }
                 }
                 Opcode::GETLP => {
-                    let lc = self
+                    let (current_index, _max_index) = self
                         .st
                         .loop_stack
                         .last()
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
-                    self.st.number_stack.push(*lc);
+                    self.st.number_stack.push(*current_index);
                 }
                 Opcode::GETLP2 => {
-                    let lc = self
+                    let (current_index, _max_index) = self
                         .st
                         .loop_stack
                         .get(self.st.loop_stack.len() - 2)
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
-                    self.st.number_stack.push(*lc);
+                    self.st.number_stack.push(*current_index);
                 }
                 Opcode::DROPLP => {
-                    let _lc = self
+                    let _x = self
                         .st
                         .loop_stack
                         .pop()
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
                 }
-                Opcode::CMPGELP => {
-                    let lc = self
+                Opcode::CMPLOOP => {
+                    let (current_index, max_index) = self
                         .st
                         .loop_stack
                         .last()
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
-                    let ts = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::LoopStackUnderflow)?;
-                    if *lc >= ts {
+                    if *current_index >= *max_index {
                         self.st.number_stack.push(0);
                     } else {
                         self.st.number_stack.push(1);
