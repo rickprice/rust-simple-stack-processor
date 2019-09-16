@@ -401,6 +401,9 @@ impl StackMachine {
                     self.st.number_stack.push(*current_index);
                 }
                 Opcode::GETLP2 => {
+                    if self.st.loop_stack.len() < 2 {
+                        return Err(StackMachineError::LoopStackUnderflow)
+                    }
                     let (current_index, _max_index) = self
                         .st
                         .loop_stack

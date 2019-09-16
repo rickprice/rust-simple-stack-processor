@@ -668,6 +668,28 @@ fn test_execute_getlp() {
 }
 
 #[test]
+fn test_execute_getlp_fail_1() {
+    let mut sm = StackMachine::new();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[321, 39483]);
+
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::GETLP, Opcode::RET]);
+
+    // Execute the instructions
+    assert_eq!(
+        match sm.execute(0, GasLimit::Limited(100)) {
+            Err(StackMachineError::LoopStackUnderflow) => 1,
+            _ => 0,
+        },
+        1
+    );
+}
+
+#[test]
 fn test_execute_getlp2() {
     let mut sm = StackMachine::new();
 
@@ -687,6 +709,31 @@ fn test_execute_getlp2() {
 
     assert_eq!(sm.st.number_stack, vec![321, 39483, 3210]);
     assert_eq!(sm.st.loop_stack, vec![(3210, 0), (394836, 0)]);
+}
+
+#[test]
+fn test_execute_getlp2_fail_2() {
+    let mut sm = StackMachine::new();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[321, 39483]);
+
+    // Populate the loop stack
+    sm.st.loop_stack.extend_from_slice(&[(3210, 0)]);
+
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::GETLP2, Opcode::RET]);
+
+    // Execute the instructions
+    assert_eq!(
+        match sm.execute(0, GasLimit::Limited(100)) {
+            Err(StackMachineError::LoopStackUnderflow) => 1,
+            _ => 0,
+        },
+        1
+    );
 }
 
 #[test]
