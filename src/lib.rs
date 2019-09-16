@@ -139,6 +139,10 @@ impl StackMachine {
     /// 1 Would jump to the instruction after the JR(*) instruction
     ///
     /// TRAPs always have a numeric code on the number stack to define which TRAP is being called
+    /// 
+    /// CMPLOOP 
+    /// pushes 1 on the stack if the loop counter is greater than or equal to the max
+    /// pushes 0 on the stack if the loop counter is less than the max
     pub fn execute(
         &mut self,
         starting_point: usize,
@@ -418,9 +422,9 @@ impl StackMachine {
                         .last()
                         .ok_or(StackMachineError::LoopStackUnderflow)?;
                     if *current_index >= *max_index {
-                        self.st.number_stack.push(0);
-                    } else {
                         self.st.number_stack.push(1);
+                    } else {
+                        self.st.number_stack.push(0);
                     }
                 }
             };
