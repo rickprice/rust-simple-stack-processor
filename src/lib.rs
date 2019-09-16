@@ -133,6 +133,12 @@ impl StackMachine {
         }
     }
 
+    /// JR(*) is relative from the JR(*) instruction,
+    /// 0 would jump back onto the JR instruction
+    /// -1 Would jump back to the instruction before the JR(*}) instruction
+    /// 1 Would jump to the instruction after the JR(*) instruction
+    ///
+    /// TRAPs always have a numeric code on the number stack to define which TRAP is being called
     pub fn execute(
         &mut self,
         starting_point: usize,
@@ -332,7 +338,6 @@ impl StackMachine {
                     self.st.number_stack.push(y);
                 }
                 Opcode::TRAP => {
-                    // We are going to say that TRAPs always have a numeric code on the number stack to define which TRAP is being called
                     let trap_id = self
                         .st
                         .number_stack
