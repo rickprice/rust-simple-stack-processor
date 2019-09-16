@@ -316,7 +316,11 @@ impl StackMachine {
                         .number_stack
                         .pop()
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(!x);
+                        self.st.number_stack.push(
+                        match x {
+                            0=>1,
+                            _=>0,
+                        });
                 }
                 Opcode::DUP => {
                     let x = self

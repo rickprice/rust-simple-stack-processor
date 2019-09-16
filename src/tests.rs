@@ -434,7 +434,7 @@ fn test_execute_div() {
 }
 
 #[test]
-fn test_execute_not() {
+fn test_execute_not_1() {
     let mut sm = StackMachine::new();
 
     // Populate the number stack
@@ -445,7 +445,37 @@ fn test_execute_not() {
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![321_i64, -1]);
+    assert_eq!(sm.st.number_stack, vec![321_i64, 1]);
+}
+
+#[test]
+fn test_execute_not_2() {
+    let mut sm = StackMachine::new();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[321, 1]);
+    // Put the opcodes into the *memory*
+    sm.st.opcodes.extend_from_slice(&[Opcode::NOT, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![321_i64, 0]);
+}
+
+#[test]
+fn test_execute_not_3() {
+    let mut sm = StackMachine::new();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[321, 346780]);
+    // Put the opcodes into the *memory*
+    sm.st.opcodes.extend_from_slice(&[Opcode::NOT, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![321_i64, 0]);
 }
 
 #[test]
@@ -754,7 +784,7 @@ fn test_execute_cmpgelp_eq() {
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![321, 39583, 0]);
+    assert_eq!(sm.st.number_stack, vec![321, 39583, 1]);
     assert_eq!(sm.st.loop_stack, vec![(3210, 0), (39483, 39483)]);
 }
 
@@ -776,7 +806,7 @@ fn test_execute_cmpgelp_gt() {
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![321, 39583, 0]);
+    assert_eq!(sm.st.number_stack, vec![321, 39583, 1]);
     assert_eq!(sm.st.loop_stack, vec![(3210, 0), (39484, 39483)]);
 }
 
@@ -798,6 +828,6 @@ fn test_execute_cmpgelp_lt() {
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![321, 39583, 1]);
+    assert_eq!(sm.st.number_stack, vec![321, 39583, 0]);
     assert_eq!(sm.st.loop_stack, vec![(3210, 0), (39482, 39483)]);
 }
