@@ -42,7 +42,7 @@ impl<'a> TrapHandler<'a> {
         C: Fn(i64, &mut StackMachineState) -> Result<TrapHandled, StackMachineError> + 'a,
     {
         TrapHandler {
-            handled_trap: handled_trap,
+            handled_trap,
             to_run: Box::new(f),
         }
     }
@@ -101,8 +101,8 @@ pub struct StackMachineState {
     gas_used: u64,
 }
 
-impl StackMachineState {
-    pub fn new() -> StackMachineState {
+impl Default for StackMachineState {
+    fn default() -> Self {
         StackMachineState {
             number_stack: Vec::new(),
             return_stack: Vec::new(),
@@ -125,22 +125,24 @@ pub struct StackMachine {
     pub trap_handlers: Vec<Box<dyn HandleTrap>>,
 }
 
-impl StackMachine {
-    pub fn new() -> StackMachine {
+impl Default for StackMachine {
+    fn default() -> StackMachine {
         StackMachine {
-            st: StackMachineState::new(),
+            st: StackMachineState::default(),
             trap_handlers: Vec::new(),
         }
     }
+}
 
+impl StackMachine {
     /// JR(*) is relative from the JR(*) instruction,
     /// 0 would jump back onto the JR instruction
     /// -1 Would jump back to the instruction before the JR(*}) instruction
     /// 1 Would jump to the instruction after the JR(*) instruction
     ///
     /// TRAPs always have a numeric code on the number stack to define which TRAP is being called
-    /// 
-    /// CMPLOOP 
+    ///
+    /// CMPLOOP
     /// pushes 1 on the stack if the loop counter is greater than or equal to the max
     /// pushes 0 on the stack if the loop counter is less than the max
     pub fn execute(
@@ -316,11 +318,10 @@ impl StackMachine {
                         .number_stack
                         .pop()
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
-                        self.st.number_stack.push(
-                        match x {
-                            0=>1,
-                            _=>0,
-                        });
+                    self.st.number_stack.push(match x {
+                        0 => 1,
+                        _ => 0,
+                    });
                 }
                 Opcode::DUP => {
                     let x = self
@@ -406,7 +407,7 @@ impl StackMachine {
                 }
                 Opcode::GETLP2 => {
                     if self.st.loop_stack.len() < 2 {
-                        return Err(StackMachineError::LoopStackUnderflow)
+                        return Err(StackMachineError::LoopStackUnderflow);
                     }
                     let (current_index, _max_index) = self
                         .st
