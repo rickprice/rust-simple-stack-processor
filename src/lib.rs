@@ -1,4 +1,5 @@
 use std::convert::TryFrom;
+use std::num::TryFromIntError;
 
 #[cfg(test)]
 mod tests;
@@ -11,10 +12,19 @@ pub enum GasLimit {
 #[derive(Debug)]
 pub enum StackMachineError {
     UnkownError,
+    NumericOverflow,
     NumberStackUnderflow,
     LoopStackUnderflow,
     UnhandledTrap,
     RanOutOfGas,
+}
+
+impl From<TryFromIntError> for StackMachineError {
+    fn from(err: TryFromIntError) -> StackMachineError {
+        match err {
+            _ => StackMachineError::NumericOverflow,
+        }
+    }
 }
 
 pub enum TrapHandled {
@@ -165,13 +175,12 @@ impl StackMachine {
                     pc_reset = true;
                 }
                 Opcode::JR => {
-                    let new_offset = self.st.pc as i128
+                    let new_offset = i64::try_from(self.st.pc)?
                         + self
                             .st
                             .number_stack
                             .pop()
-                            .ok_or(StackMachineError::NumberStackUnderflow)?
-                            as i128;
+                            .ok_or(StackMachineError::NumberStackUnderflow)?;
                     self.st.pc = usize::try_from(new_offset).unwrap();
                     pc_reset = true;
                 }
@@ -210,13 +219,12 @@ impl StackMachine {
                     }
                 }
                 Opcode::JRZ => {
-                    let new_offset = self.st.pc as i128
+                    let new_offset = i64::try_from(self.st.pc)?
                         + self
                             .st
                             .number_stack
                             .pop()
-                            .ok_or(StackMachineError::NumberStackUnderflow)?
-                            as i128;
+                            .ok_or(StackMachineError::NumberStackUnderflow)?;
                     let x = self
                         .st
                         .number_stack
@@ -228,13 +236,12 @@ impl StackMachine {
                     }
                 }
                 Opcode::JRNZ => {
-                    let new_offset = self.st.pc as i128
+                    let new_offset = i64::try_from(self.st.pc)?
                         + self
                             .st
                             .number_stack
                             .pop()
-                            .ok_or(StackMachineError::NumberStackUnderflow)?
-                            as i128;
+                            .ok_or(StackMachineError::NumberStackUnderflow)?;
                     let x = self
                         .st
                         .number_stack
@@ -375,7 +382,7 @@ impl StackMachine {
                 }
                 Opcode::INCLP => match self.st.loop_stack.last_mut() {
                     Some((current_index, _max_index)) => {
-                        *current_index = *current_index + 1;
+                        *current_index += 1;
                     }
                     None => {
                         return Err(StackMachineError::LoopStackUnderflow);
@@ -390,7 +397,7 @@ impl StackMachine {
 
                     match self.st.loop_stack.last_mut() {
                         Some((current_index, _max_index)) => {
-                            *current_index = *current_index + increment;
+                            *current_index += increment;
                         }
                         None => {
                             return Err(StackMachineError::LoopStackUnderflow);
@@ -436,7 +443,7 @@ impl StackMachine {
                     }
                 }
             };
-            if pc_reset == false {
+            if !pc_reset {
                 self.st.pc += 1;
             }
 

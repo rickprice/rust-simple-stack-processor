@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_execute_jr_forward() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -27,7 +27,7 @@ fn test_execute_jr_forward() {
 
 #[test]
 fn test_execute_jr_backward() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -49,7 +49,7 @@ fn test_execute_jr_backward() {
 
 #[test]
 fn test_execute_jrz_forward() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -81,7 +81,7 @@ fn test_execute_jrz_forward() {
 
 #[test]
 fn test_execute_jrz_backward() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -114,7 +114,7 @@ fn test_execute_jrz_backward() {
 
 #[test]
 fn test_execute_jrnz_forward() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -146,7 +146,7 @@ fn test_execute_jrnz_forward() {
 
 #[test]
 fn test_execute_jrnz_backward() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -179,7 +179,7 @@ fn test_execute_jrnz_backward() {
 
 #[test]
 fn test_execute_cmpz_1() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[123, 321, 0]);
@@ -196,7 +196,7 @@ fn test_execute_cmpz_1() {
 
 #[test]
 fn test_execute_cmpz_2() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[123, 321, 1]);
@@ -213,7 +213,7 @@ fn test_execute_cmpz_2() {
 
 #[test]
 fn test_execute_cmpnz_1() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[123, 321, 0]);
@@ -230,7 +230,7 @@ fn test_execute_cmpnz_1() {
 
 #[test]
 fn test_execute_cmpnz_2() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[123, 321, 1]);
@@ -247,7 +247,7 @@ fn test_execute_cmpnz_2() {
 
 #[test]
 fn test_execute_call() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -292,7 +292,7 @@ fn test_execute_call() {
 
 #[test]
 fn test_execute_ldi() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -309,7 +309,7 @@ fn test_execute_ldi() {
 
 #[test]
 fn test_execute_pop() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -331,7 +331,7 @@ fn test_execute_pop() {
 #[test]
 #[should_panic]
 fn test_execute_pop_error() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -354,7 +354,7 @@ fn test_execute_pop_error() {
 
 #[test]
 fn test_execute_swap() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -375,7 +375,7 @@ fn test_execute_swap() {
 
 #[test]
 fn test_execute_add() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[123, 321]);
@@ -390,7 +390,7 @@ fn test_execute_add() {
 
 #[test]
 fn test_execute_sub() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 444]);
@@ -405,7 +405,7 @@ fn test_execute_sub() {
 
 #[test]
 fn test_execute_mul() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 123]);
@@ -420,7 +420,7 @@ fn test_execute_mul() {
 
 #[test]
 fn test_execute_div() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -435,7 +435,7 @@ fn test_execute_div() {
 
 #[test]
 fn test_execute_not_1() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 0]);
@@ -450,7 +450,7 @@ fn test_execute_not_1() {
 
 #[test]
 fn test_execute_not_2() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 1]);
@@ -465,7 +465,7 @@ fn test_execute_not_2() {
 
 #[test]
 fn test_execute_not_3() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 346780]);
@@ -480,7 +480,7 @@ fn test_execute_not_3() {
 
 #[test]
 fn test_execute_dup() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[123, 39483]);
@@ -496,7 +496,7 @@ fn test_execute_dup() {
 #[test]
 #[should_panic]
 fn test_execute_run_out_of_gas() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -536,7 +536,7 @@ fn test_execute_run_out_of_gas() {
 
 #[test]
 fn test_handle_trap_1() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     sm.trap_handlers
         .push(Box::from(TrapHandler::new(100, |_trap_id, st| {
@@ -562,7 +562,7 @@ fn test_handle_trap_1() {
 
 #[test]
 fn test_handle_trap_2() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     sm.trap_handlers
         .push(Box::from(TrapHandler::new(-100, |_trap_id, st| {
@@ -604,7 +604,7 @@ fn test_handle_trap_2() {
 
 #[test]
 fn test_unhandled_trap_1() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack, with a value (50), and the trap number (100)
     sm.st.number_stack.extend_from_slice(&[50_i64, 100]);
@@ -623,7 +623,7 @@ fn test_unhandled_trap_1() {
 
 #[test]
 fn test_execute_pushlp() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483, 0]);
@@ -641,7 +641,7 @@ fn test_execute_pushlp() {
 
 #[test]
 fn test_execute_inclp() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483, 0]);
@@ -659,7 +659,7 @@ fn test_execute_inclp() {
 
 #[test]
 fn test_execute_addlp() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483, 0]);
@@ -677,7 +677,7 @@ fn test_execute_addlp() {
 
 #[test]
 fn test_execute_getlp() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -699,7 +699,7 @@ fn test_execute_getlp() {
 
 #[test]
 fn test_execute_getlp_fail_1() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -721,7 +721,7 @@ fn test_execute_getlp_fail_1() {
 
 #[test]
 fn test_execute_getlp2() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -743,7 +743,7 @@ fn test_execute_getlp2() {
 
 #[test]
 fn test_execute_getlp2_fail_2() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39483]);
@@ -768,7 +768,7 @@ fn test_execute_getlp2_fail_2() {
 
 #[test]
 fn test_execute_cmpgelp_eq() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39583]);
@@ -790,7 +790,7 @@ fn test_execute_cmpgelp_eq() {
 
 #[test]
 fn test_execute_cmpgelp_gt() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39583]);
@@ -812,7 +812,7 @@ fn test_execute_cmpgelp_gt() {
 
 #[test]
 fn test_execute_cmpgelp_lt() {
-    let mut sm = StackMachine::new();
+    let mut sm = StackMachine::default();
 
     // Populate the number stack
     sm.st.number_stack.extend_from_slice(&[321, 39583]);
