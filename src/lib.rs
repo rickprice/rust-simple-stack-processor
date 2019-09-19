@@ -307,12 +307,12 @@ impl StackMachine {
                     self.st.number_stack.push(x * y);
                 }
                 Opcode::DIV => {
-                    let x = self
+                    let y = self
                         .st
                         .number_stack
                         .pop()
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let y = self
+                    let x = self
                         .st
                         .number_stack
                         .pop()
