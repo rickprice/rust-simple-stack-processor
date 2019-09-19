@@ -81,7 +81,7 @@ pub enum Opcode {
     CMPZ,
     CMPNZ,
     LDI(i64),
-    POP,
+    DROP,
     SWAP,
     RET,
     ADD,
@@ -90,6 +90,7 @@ pub enum Opcode {
     DIV,
     NOT,
     DUP,
+    DUP2,
     TRAP,
     NOP,
     PUSHLP,
@@ -253,7 +254,7 @@ impl StackMachine {
                     }
                 }
                 Opcode::LDI(x) => self.st.number_stack.push(x),
-                Opcode::POP => {
+                Opcode::DROP => {
                     let _ = self
                         .st
                         .number_stack
@@ -337,6 +338,22 @@ impl StackMachine {
                         .pop()
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
                     self.st.number_stack.push(x);
+                    self.st.number_stack.push(x);
+                }
+                Opcode::DUP2 => {
+                    let x = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let y = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    self.st.number_stack.push(y);
+                    self.st.number_stack.push(x);
+                    self.st.number_stack.push(y);
                     self.st.number_stack.push(x);
                 }
                 Opcode::SWAP => {
