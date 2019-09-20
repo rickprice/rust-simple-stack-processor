@@ -83,6 +83,7 @@ pub enum Opcode {
     LDI(i64),
     DROP,
     SWAP,
+    SWAP2,
     RET,
     ADD,
     SUB,
@@ -398,6 +399,32 @@ impl StackMachine {
                         .ok_or(StackMachineError::NumberStackUnderflow)?;
                     self.st.number_stack.push(x);
                     self.st.number_stack.push(y);
+                }
+                Opcode::SWAP2 => {
+                    let x4 = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let x3 = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let x2 = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let x1 = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    self.st.number_stack.push(x3);
+                    self.st.number_stack.push(x4);
+                    self.st.number_stack.push(x1);
+                    self.st.number_stack.push(x2);
                 }
                 Opcode::TRAP => {
                     let trap_id = self
