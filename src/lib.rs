@@ -382,8 +382,8 @@ impl StackMachine {
                     self.st.number_stack.push(x2);
                     self.st.number_stack.push(x3);
                     self.st.number_stack.push(x4);
-                    self.st.number_stack.push(x3);
-                    self.st.number_stack.push(x4);
+                    self.st.number_stack.push(x1);
+                    self.st.number_stack.push(x2);
                 }
                 Opcode::SWAP => {
                     let x = self
