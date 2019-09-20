@@ -317,7 +317,7 @@ fn test_execute_pop() {
     sm.st.opcodes.extend_from_slice(&[
         Opcode::LDI(0),
         Opcode::LDI(1),
-        Opcode::POP,
+        Opcode::DROP,
         Opcode::LDI(2),
         Opcode::RET,
     ]);
@@ -339,11 +339,11 @@ fn test_execute_pop_error() {
     sm.st.opcodes.extend_from_slice(&[
         Opcode::LDI(0),
         Opcode::LDI(1),
-        Opcode::POP,
-        Opcode::POP,
-        Opcode::POP,
-        Opcode::POP,
-        Opcode::POP,
+        Opcode::DROP,
+        Opcode::DROP,
+        Opcode::DROP,
+        Opcode::DROP,
+        Opcode::DROP,
         Opcode::LDI(2),
         Opcode::RET,
     ]);
@@ -423,14 +423,14 @@ fn test_execute_div() {
     let mut sm = StackMachine::default();
 
     // Populate the number stack
-    sm.st.number_stack.extend_from_slice(&[321, 39483]);
+    sm.st.number_stack.extend_from_slice(&[10, 5]);
     // Put the opcodes into the *memory*
     sm.st.opcodes.extend_from_slice(&[Opcode::DIV, Opcode::RET]);
 
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![123]);
+    assert_eq!(sm.st.number_stack, vec![2]);
 }
 
 #[test]

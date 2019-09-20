@@ -100,6 +100,7 @@ pub enum Opcode {
     GETLP2,
     DROPLP,
     CMPLOOP,
+    OVER2,
 }
 
 pub struct StackMachineState {
@@ -355,6 +356,34 @@ impl StackMachine {
                     self.st.number_stack.push(x);
                     self.st.number_stack.push(y);
                     self.st.number_stack.push(x);
+                }
+                Opcode::OVER2 => {
+                    let x4 = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let x3 = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let x2 = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let x1 = self
+                        .st
+                        .number_stack
+                        .pop()
+                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    self.st.number_stack.push(x1);
+                    self.st.number_stack.push(x2);
+                    self.st.number_stack.push(x3);
+                    self.st.number_stack.push(x4);
+                    self.st.number_stack.push(x3);
+                    self.st.number_stack.push(x4);
                 }
                 Opcode::SWAP => {
                     let x = self
