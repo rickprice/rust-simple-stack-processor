@@ -147,6 +147,22 @@ impl Default for StackMachine {
     }
 }
 
+macro_rules! pop_number_stack {
+    ($variable:ident) => {
+        $variable
+            .st
+            .number_stack
+            .pop()
+            .ok_or(StackMachineError::NumberStackUnderflow)?
+    };
+}
+
+macro_rules! push_number_stack {
+    ($variable:ident,$expr:expr) => {
+        $variable.st.number_stack.push($expr);
+    };
+}
+
 impl StackMachine {
     /// JR(*) is relative from the JR(*) instruction,
     /// 0 would jump back onto the JR instruction
@@ -169,40 +185,21 @@ impl StackMachine {
             let mut pc_reset = false;
             match self.st.opcodes[self.st.pc] {
                 Opcode::JMP => {
-                    self.st.pc = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .map(|x| x as usize)
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    self.st.pc = usize::try_from(pop_number_stack!(self)).unwrap();
                     pc_reset = true;
                 }
                 Opcode::JR => {
-                    let new_offset = i64::try_from(self.st.pc)?
-                        + self
-                            .st
-                            .number_stack
-                            .pop()
-                            .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let new_offset = i64::try_from(self.st.pc)? + pop_number_stack!(self);
                     self.st.pc = usize::try_from(new_offset).unwrap();
                     pc_reset = true;
                 }
                 Opcode::CALL => {
                     self.st.return_stack.push(self.st.pc + 1);
-                    self.st.pc = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .map(|x| x as usize)
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    self.st.pc = usize::try_from(pop_number_stack!(self))?;
                     pc_reset = true;
                 }
                 Opcode::CMPZ => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let x = pop_number_stack!(self);
                     if x == 0 {
                         self.st.number_stack.push(0);
                     } else {
@@ -210,11 +207,7 @@ impl StackMachine {
                     }
                 }
                 Opcode::CMPNZ => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let x = pop_number_stack!(self);
                     if x == 0 {
                         self.st.number_stack.push(-1);
                     } else {
@@ -222,46 +215,24 @@ impl StackMachine {
                     }
                 }
                 Opcode::JRZ => {
-                    let new_offset = i64::try_from(self.st.pc)?
-                        + self
-                            .st
-                            .number_stack
-                            .pop()
-                            .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let new_offset = i64::try_from(self.st.pc)? + pop_number_stack!(self);
+                    let x = pop_number_stack!(self);
                     if x == 0 {
                         self.st.pc = usize::try_from(new_offset).unwrap();
                         pc_reset = true;
                     }
                 }
                 Opcode::JRNZ => {
-                    let new_offset = i64::try_from(self.st.pc)?
-                        + self
-                            .st
-                            .number_stack
-                            .pop()
-                            .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let new_offset = i64::try_from(self.st.pc)? + pop_number_stack!(self);
+                    let x = pop_number_stack!(self);
                     if x != 0 {
                         self.st.pc = usize::try_from(new_offset).unwrap();
                         pc_reset = true;
                     }
                 }
-                Opcode::LDI(x) => self.st.number_stack.push(x),
+                Opcode::LDI(x) => push_number_stack!(self, x),
                 Opcode::DROP => {
-                    let _ = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let _ = pop_number_stack!(self);
                 }
                 Opcode::RET => {
                     match self.st.return_stack.pop() {
@@ -271,167 +242,78 @@ impl StackMachine {
                     pc_reset = true;
                 }
                 Opcode::ADD => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let y = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(x + y);
+                    let x = pop_number_stack!(self);
+                    let y = pop_number_stack!(self);
+                    push_number_stack!(self, x + y);
                 }
                 Opcode::SUB => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let y = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(x - y);
+                    let x = pop_number_stack!(self);
+                    let y = pop_number_stack!(self);
+                    push_number_stack!(self, x - y);
                 }
                 Opcode::MUL => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let y = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(x * y);
+                    let x = pop_number_stack!(self);
+                    let y = pop_number_stack!(self);
+                    push_number_stack!(self, x * y);
                 }
                 Opcode::DIV => {
-                    let y = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(x / y);
+                    let x = pop_number_stack!(self);
+                    let y = pop_number_stack!(self);
+                    push_number_stack!(self, y / x);
                 }
                 Opcode::NOT => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(match x {
-                        0 => 1,
-                        _ => 0,
-                    });
+                    let x = pop_number_stack!(self);
+                    push_number_stack!(
+                        self,
+                        match x {
+                            0 => 1,
+                            _ => 0,
+                        }
+                    );
                 }
                 Opcode::DUP => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(x);
-                    self.st.number_stack.push(x);
+                    let x = pop_number_stack!(self);
+                    push_number_stack!(self, x);
+                    push_number_stack!(self, x);
                 }
                 Opcode::DUP2 => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let y = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(y);
-                    self.st.number_stack.push(x);
-                    self.st.number_stack.push(y);
-                    self.st.number_stack.push(x);
+                    let x = pop_number_stack!(self);
+                    let y = pop_number_stack!(self);
+                    push_number_stack!(self, y);
+                    push_number_stack!(self, x);
+                    push_number_stack!(self, y);
+                    push_number_stack!(self, x);
                 }
                 Opcode::OVER2 => {
-                    let x4 = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x3 = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x2 = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x1 = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(x1);
-                    self.st.number_stack.push(x2);
-                    self.st.number_stack.push(x3);
-                    self.st.number_stack.push(x4);
-                    self.st.number_stack.push(x1);
-                    self.st.number_stack.push(x2);
+                    let x4 = pop_number_stack!(self);
+                    let x3 = pop_number_stack!(self);
+                    let x2 = pop_number_stack!(self);
+                    let x1 = pop_number_stack!(self);
+                    push_number_stack!(self, x1);
+                    push_number_stack!(self, x2);
+                    push_number_stack!(self, x3);
+                    push_number_stack!(self, x4);
+                    push_number_stack!(self, x1);
+                    push_number_stack!(self, x2);
                 }
                 Opcode::SWAP => {
-                    let x = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let y = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(x);
-                    self.st.number_stack.push(y);
+                    let x = pop_number_stack!(self);
+                    let y = pop_number_stack!(self);
+                    push_number_stack!(self, x);
+                    push_number_stack!(self, y);
                 }
                 Opcode::SWAP2 => {
-                    let x4 = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x3 = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x2 = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let x1 = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    self.st.number_stack.push(x3);
-                    self.st.number_stack.push(x4);
-                    self.st.number_stack.push(x1);
-                    self.st.number_stack.push(x2);
+                    let x4 = pop_number_stack!(self);
+                    let x3 = pop_number_stack!(self);
+                    let x2 = pop_number_stack!(self);
+                    let x1 = pop_number_stack!(self);
+                    push_number_stack!(self, x3);
+                    push_number_stack!(self, x4);
+                    push_number_stack!(self, x1);
+                    push_number_stack!(self, x2);
                 }
                 Opcode::TRAP => {
-                    let trap_id = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let trap_id = pop_number_stack!(self);
                     for h in self.trap_handlers.iter_mut() {
                         if let TrapHandled::Handled = h.handle_trap(trap_id, &mut self.st)? {
                             return Ok(());
@@ -441,16 +323,8 @@ impl StackMachine {
                 }
                 Opcode::NOP => {}
                 Opcode::PUSHLP => {
-                    let current_index = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
-                    let max_index = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let current_index = pop_number_stack!(self);
+                    let max_index = pop_number_stack!(self);
                     self.st.loop_stack.push((current_index, max_index));
                 }
                 Opcode::INCLP => match self.st.loop_stack.last_mut() {
@@ -462,11 +336,7 @@ impl StackMachine {
                     }
                 },
                 Opcode::ADDLP => {
-                    let increment = self
-                        .st
-                        .number_stack
-                        .pop()
-                        .ok_or(StackMachineError::NumberStackUnderflow)?;
+                    let increment = pop_number_stack!(self);
 
                     match self.st.loop_stack.last_mut() {
                         Some((current_index, _max_index)) => {
