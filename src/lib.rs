@@ -109,6 +109,7 @@ pub enum Opcode {
     GtR2,
     RGt2,
     RAt2,
+    AND,
 }
 
 pub struct StackMachineState {
@@ -451,6 +452,11 @@ impl StackMachine {
                     } else {
                         self.st.number_stack.push(0);
                     }
+                }
+                Opcode::AND => {
+                    let x = pop_number_stack!(self);
+                    let y = pop_number_stack!(self);
+                    push_number_stack!(self, x & y);
                 }
             };
             if !pc_reset {

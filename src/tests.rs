@@ -938,3 +938,20 @@ fn test_execute_cmpgelp_lt() {
     assert_eq!(sm.st.number_stack, vec![321, 39583, 0]);
     assert_eq!(sm.st.loop_stack, vec![(3210, 0), (39482, 39483)]);
 }
+
+#[test]
+fn test_execute_and() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0b10101110i64,0b01010111i64]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::AND, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0b00000110i64]);
+}
