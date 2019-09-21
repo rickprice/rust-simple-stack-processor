@@ -237,17 +237,17 @@ impl StackMachine {
                 Opcode::CMPZ => {
                     let x = pop_number_stack!(self);
                     if x == 0 {
-                        self.st.number_stack.push(0);
-                    } else {
                         self.st.number_stack.push(-1);
+                    } else {
+                        self.st.number_stack.push(0);
                     }
                 }
                 Opcode::CMPNZ => {
                     let x = pop_number_stack!(self);
                     if x == 0 {
-                        self.st.number_stack.push(-1);
-                    } else {
                         self.st.number_stack.push(0);
+                    } else {
+                        self.st.number_stack.push(-1);
                     }
                 }
                 Opcode::JRZ => {

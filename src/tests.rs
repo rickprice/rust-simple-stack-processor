@@ -191,7 +191,7 @@ fn test_execute_cmpz_1() {
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![123_i64, 321, 0]);
+    assert_eq!(sm.st.number_stack, vec![123_i64, 321, -1]);
 }
 
 #[test]
@@ -208,7 +208,7 @@ fn test_execute_cmpz_2() {
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![123_i64, 321, -1]);
+    assert_eq!(sm.st.number_stack, vec![123_i64, 321, 0]);
 }
 
 #[test]
@@ -225,7 +225,7 @@ fn test_execute_cmpnz_1() {
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![123_i64, 321, -1]);
+    assert_eq!(sm.st.number_stack, vec![123_i64, 321, 0]);
 }
 
 #[test]
@@ -242,7 +242,7 @@ fn test_execute_cmpnz_2() {
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
 
-    assert_eq!(sm.st.number_stack, vec![123_i64, 321, 0]);
+    assert_eq!(sm.st.number_stack, vec![123_i64, 321, -1]);
 }
 
 #[test]
