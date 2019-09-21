@@ -291,6 +291,113 @@ fn test_execute_call() {
 }
 
 #[test]
+fn test_execute_gt_r() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0, 1, 2]);
+    // Put the opcodes into the *memory*
+    sm.st.opcodes.extend_from_slice(&[Opcode::GtR, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0_i64, 1]);
+    assert_eq!(sm.st.scratch_stack, vec![2_i64]);
+}
+
+#[test]
+fn test_execute_r_gt() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0, 1, 2]);
+    sm.st.scratch_stack.extend_from_slice(&[3, 4, 5]);
+    // Put the opcodes into the *memory*
+    sm.st.opcodes.extend_from_slice(&[Opcode::RGt, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0_i64, 1, 2, 5]);
+    assert_eq!(sm.st.scratch_stack, vec![3_i64, 4]);
+}
+
+#[test]
+fn test_execute_r_at() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0, 1, 2]);
+    sm.st.scratch_stack.extend_from_slice(&[3, 4, 5]);
+    // Put the opcodes into the *memory*
+    sm.st.opcodes.extend_from_slice(&[Opcode::RAt, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0_i64, 1, 2, 5]);
+    assert_eq!(sm.st.scratch_stack, vec![3_i64, 4, 5]);
+}
+
+#[test]
+fn test_execute_gt_r_2() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0, 1, 2]);
+    sm.st.scratch_stack.extend_from_slice(&[3, 4, 5]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::GtR2, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0_i64]);
+    assert_eq!(sm.st.scratch_stack, vec![3_i64, 4, 5, 1, 2]);
+}
+
+#[test]
+fn test_execute_r_gt_2() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0, 1, 2]);
+    sm.st.scratch_stack.extend_from_slice(&[3, 4, 5]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::RGt2, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0_i64, 1, 2, 4, 5]);
+    assert_eq!(sm.st.scratch_stack, vec![3_i64]);
+}
+
+#[test]
+fn test_execute_r_at_2() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0, 1, 2]);
+    sm.st.scratch_stack.extend_from_slice(&[3, 4, 5]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::RAt2, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0_i64, 1, 2, 4, 5]);
+    assert_eq!(sm.st.scratch_stack, vec![3_i64, 4, 5]);
+}
+
+#[test]
 fn test_execute_ldi() {
     let mut sm = StackMachine::default();
 

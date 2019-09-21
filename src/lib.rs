@@ -15,6 +15,7 @@ pub enum StackMachineError {
     NumericOverflow,
     NumberStackUnderflow,
     LoopStackUnderflow,
+    ScratchStackUnderflow,
     UnhandledTrap,
     RanOutOfGas,
 }
@@ -102,6 +103,12 @@ pub enum Opcode {
     DROPLP,
     CMPLOOP,
     OVER2,
+    GtR,
+    RGt,
+    RAt,
+    GtR2,
+    RGt2,
+    RAt2,
 }
 
 pub struct StackMachineState {
@@ -171,13 +178,23 @@ macro_rules! pop_scratch_stack {
             .st
             .scratch_stack
             .pop()
-            .ok_or(StackMachineError::NumberStackUnderflow)?
+            .ok_or(StackMachineError::ScratchStackUnderflow)?
     };
 }
 
 macro_rules! push_scratch_stack {
     ($variable:ident,$expr:expr) => {
         $variable.st.scratch_stack.push($expr);
+    };
+}
+
+macro_rules! last_scratch_stack {
+    ($variable:ident) => {
+        $variable
+            .st
+            .scratch_stack
+            .last()
+            .ok_or(StackMachineError::ScratchStackUnderflow)?
     };
 }
 
@@ -258,6 +275,38 @@ impl StackMachine {
                         Some(oldpc) => self.st.pc = oldpc,
                     };
                     pc_reset = true;
+                }
+                Opcode::GtR => {
+                    let x = pop_number_stack!(self);
+                    push_scratch_stack!(self, x);
+                }
+                Opcode::RGt => {
+                    let x = pop_scratch_stack!(self);
+                    push_number_stack!(self, x);
+                }
+                Opcode::RAt => {
+                    let x = last_scratch_stack!(self);
+                    push_number_stack!(self, *x);
+                }
+                Opcode::GtR2 => {
+                    let x = pop_number_stack!(self);
+                    let y = pop_number_stack!(self);
+                    push_scratch_stack!(self, y);
+                    push_scratch_stack!(self, x);
+                }
+                Opcode::RGt2 => {
+                    let x = pop_scratch_stack!(self);
+                    let y = pop_scratch_stack!(self);
+                    push_number_stack!(self, y);
+                    push_number_stack!(self, x);
+                }
+                Opcode::RAt2 => {
+                    let x = pop_scratch_stack!(self);
+                    let y = pop_scratch_stack!(self);
+                    push_scratch_stack!(self, y);
+                    push_scratch_stack!(self, x);
+                    push_number_stack!(self, y);
+                    push_number_stack!(self, x);
                 }
                 Opcode::ADD => {
                     let x = pop_number_stack!(self);
