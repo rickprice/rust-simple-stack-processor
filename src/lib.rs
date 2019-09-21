@@ -106,6 +106,7 @@ pub enum Opcode {
 
 pub struct StackMachineState {
     pub number_stack: Vec<i64>,
+    pub scratch_stack: Vec<i64>,
     return_stack: Vec<usize>,
     // current index, max_index
     loop_stack: Vec<(i64, i64)>,
@@ -118,6 +119,7 @@ impl Default for StackMachineState {
     fn default() -> Self {
         StackMachineState {
             number_stack: Vec::new(),
+            scratch_stack: Vec::new(),
             return_stack: Vec::new(),
             loop_stack: Vec::new(),
             opcodes: Vec::new(),
@@ -160,6 +162,22 @@ macro_rules! pop_number_stack {
 macro_rules! push_number_stack {
     ($variable:ident,$expr:expr) => {
         $variable.st.number_stack.push($expr);
+    };
+}
+
+macro_rules! pop_scratch_stack {
+    ($variable:ident) => {
+        $variable
+            .st
+            .scratch_stack
+            .pop()
+            .ok_or(StackMachineError::NumberStackUnderflow)?
+    };
+}
+
+macro_rules! push_scratch_stack {
+    ($variable:ident,$expr:expr) => {
+        $variable.st.scratch_stack.push($expr);
     };
 }
 
