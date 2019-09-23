@@ -16,6 +16,7 @@ pub enum StackMachineError {
     NumberStackUnderflow,
     LoopStackUnderflow,
     ScratchStackUnderflow,
+    InvalidCellOperation,
     UnhandledTrap,
     RanOutOfGas,
 }
@@ -110,6 +111,9 @@ pub enum Opcode {
     RGt2,
     RAt2,
     AND,
+    NEWCELLS,
+    MOVETOCELLS,
+    MOVEFROMCELLS,
 }
 
 pub struct StackMachineState {
@@ -118,6 +122,7 @@ pub struct StackMachineState {
     return_stack: Vec<usize>,
     // current index, max_index
     loop_stack: Vec<(i64, i64)>,
+    cells: Vec<i64>,
     pub opcodes: Vec<Opcode>,
     pc: usize,
     gas_used: u64,
@@ -130,6 +135,7 @@ impl Default for StackMachineState {
             scratch_stack: Vec::new(),
             return_stack: Vec::new(),
             loop_stack: Vec::new(),
+            cells: Vec::new(),
             opcodes: Vec::new(),
             pc: 0,
             gas_used: 0,
@@ -457,6 +463,38 @@ impl StackMachine {
                     let x = pop_number_stack!(self);
                     let y = pop_number_stack!(self);
                     push_number_stack!(self, x & y);
+                }
+                Opcode::NEWCELLS => {
+                    let num_cells = usize::try_from(pop_number_stack!(self))
+                        .map_err(|_| StackMachineError::InvalidCellOperation)?;
+                    let newaddress = self.st.cells.len();
+                    self.st
+                        .cells
+                        .resize_with(newaddress + num_cells, Default::default);
+                }
+                Opcode::MOVETOCELLS => {
+                    let num_cells = usize::try_from(pop_number_stack!(self))
+                        .map_err(|_| StackMachineError::InvalidCellOperation)?;
+                    let address = usize::try_from(pop_number_stack!(self))
+                        .map_err(|_| StackMachineError::InvalidCellOperation)?;
+                    if num_cells < 1 || self.st.cells.len() < address + num_cells {
+                        return Err(StackMachineError::InvalidCellOperation);
+                    }
+                    for i in address..address + num_cells {
+                        self.st.cells[i] = pop_number_stack!(self);
+                    }
+                }
+                Opcode::MOVEFROMCELLS => {
+                    let num_cells = usize::try_from(pop_number_stack!(self))
+                        .map_err(|_| StackMachineError::InvalidCellOperation)?;
+                    let address = usize::try_from(pop_number_stack!(self))
+                        .map_err(|_| StackMachineError::InvalidCellOperation)?;
+                    if num_cells < 1 || self.st.cells.len() < address + num_cells {
+                        return Err(StackMachineError::InvalidCellOperation);
+                    }
+                    for i in address..address + num_cells {
+                        push_number_stack!(self, self.st.cells[i]);
+                    }
                 }
             };
             if !pc_reset {

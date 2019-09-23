@@ -944,11 +944,11 @@ fn test_execute_and() {
     let mut sm = StackMachine::default();
 
     // Populate the number stack
-    sm.st.number_stack.extend_from_slice(&[0b10101110i64,0b01010111i64]);
-    // Put the opcodes into the *memory*
     sm.st
-        .opcodes
-        .extend_from_slice(&[Opcode::AND, Opcode::RET]);
+        .number_stack
+        .extend_from_slice(&[0b10101110i64, 0b01010111i64]);
+    // Put the opcodes into the *memory*
+    sm.st.opcodes.extend_from_slice(&[Opcode::AND, Opcode::RET]);
 
     // Execute the instructions
     sm.execute(0, GasLimit::Limited(100)).unwrap();
