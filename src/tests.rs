@@ -955,3 +955,42 @@ fn test_execute_and() {
 
     assert_eq!(sm.st.number_stack, vec![0b00000110i64]);
 }
+
+#[test]
+fn test_execute_newcells_1() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0_i64, 2]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::NEWCELLS, Opcode::RET]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0]);
+    assert_eq!(sm.st.cells, vec![0, 0]);
+}
+
+#[test]
+fn test_execute_newcells_2() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    sm.st.number_stack.extend_from_slice(&[0_i64, -2]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::NEWCELLS, Opcode::RET]);
+
+    // Execute the instructions
+    assert_eq!(
+        match sm.execute(0, GasLimit::Limited(100)) {
+            Err(StackMachineError::InvalidCellOperation) => 1,
+            _ => 0,
+        },
+        1
+    );
+}
