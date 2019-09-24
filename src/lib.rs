@@ -492,7 +492,7 @@ impl StackMachine {
                     if num_cells < 1 || self.st.cells.len() < address + num_cells {
                         return Err(StackMachineError::InvalidCellOperation);
                     }
-                    for i in address..address + num_cells {
+                    for i in (address..address + num_cells).rev() {
                         push_number_stack!(self, self.st.cells[i]);
                     }
                 }

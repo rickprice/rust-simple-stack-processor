@@ -1074,3 +1074,136 @@ fn test_execute_movetocells_3() {
         1
     );
 }
+
+#[test]
+fn test_execute_movetocells_4() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    // 3 is the number of values to move to cells, it should cause a fault
+    // 0 is the location to start moving values to
+    // 3 2 1 are the values to use when moving to cells
+    sm.st
+        .number_stack
+        .extend_from_slice(&[0_i64, 1, 2, 3, 0, 3]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::MOVETOCELLS, Opcode::RET]);
+
+    // Execute the instructions
+    assert_eq!(
+        match sm.execute(0, GasLimit::Limited(100)) {
+            Err(StackMachineError::InvalidCellOperation) => 1,
+            _ => 0,
+        },
+        1
+    );
+}
+
+#[test]
+fn test_execute_movefromcells_1() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    // 2 is the number of values to move to cells
+    // 0 is the location to start moving values to
+    // 3 2 1 are the values to use when moving to cells
+    sm.st
+        .number_stack
+        .extend_from_slice(&[0_i64, 1, 2, 3, 0, 2]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::MOVEFROMCELLS, Opcode::RET]);
+
+    // Setup the cells we will be storing to
+    sm.st.cells.extend_from_slice(&[5, 4]);
+
+    // Execute the instructions
+    sm.execute(0, GasLimit::Limited(100)).unwrap();
+
+    assert_eq!(sm.st.number_stack, vec![0_i64, 1, 2, 3, 4, 5]);
+    assert_eq!(sm.st.cells, vec![5, 4]);
+}
+
+#[test]
+fn test_execute_movefromcells_2() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    // -2 Use an invalid number for the number of cells to cause a fault
+    // 0 is the start location to start
+    // 0 is the location to start moving values from
+    // 3 2 1 are the values left on the stack
+    sm.st
+        .number_stack
+        .extend_from_slice(&[0_i64, 1, 2, 3, 0, -2]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::MOVEFROMCELLS, Opcode::RET]);
+
+    // Execute the instructions
+    assert_eq!(
+        match sm.execute(0, GasLimit::Limited(100)) {
+            Err(StackMachineError::InvalidCellOperation) => 1,
+            _ => 0,
+        },
+        1
+    );
+}
+
+#[test]
+fn test_execute_movefromcells_3() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    // 2 is the number of values to move from cells
+    // -5 is an invalid start location to cause a fault
+    // 0 is the location to start moving values from
+    // 3 2 1 are the values left on the stack
+    sm.st
+        .number_stack
+        .extend_from_slice(&[0_i64, 1, 2, 3, -5, 2]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::MOVEFROMCELLS, Opcode::RET]);
+
+    // Execute the instructions
+    assert_eq!(
+        match sm.execute(0, GasLimit::Limited(100)) {
+            Err(StackMachineError::InvalidCellOperation) => 1,
+            _ => 0,
+        },
+        1
+    );
+}
+
+#[test]
+fn test_execute_movefromcells_4() {
+    let mut sm = StackMachine::default();
+
+    // Populate the number stack
+    // 3 is the number of values to move from cells, it should cause a fault
+    // 0 is a start location
+    // 0 is the location to start moving values from
+    // 3 2 1 are the values left on the stack
+    sm.st
+        .number_stack
+        .extend_from_slice(&[0_i64, 1, 2, 3, 0, 3]);
+    // Put the opcodes into the *memory*
+    sm.st
+        .opcodes
+        .extend_from_slice(&[Opcode::MOVEFROMCELLS, Opcode::RET]);
+
+    // Execute the instructions
+    assert_eq!(
+        match sm.execute(0, GasLimit::Limited(100)) {
+            Err(StackMachineError::InvalidCellOperation) => 1,
+            _ => 0,
+        },
+        1
+    );
+}
