@@ -1,8 +1,8 @@
 [package]
 name = "rust-simple-stack-processor"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Frederick Price <rprice@pricemail.ca>"]
-edition = "2018"
+edition = "2024"
 license = "MIT"
 description = "A simple stack processor emulator written in Rust"
 homepage = "https://github.com/rickprice/rust-simple-stack-processor"

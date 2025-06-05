@@ -175,7 +175,7 @@ macro_rules! pop_number_stack {
 
 macro_rules! push_number_stack {
     ($variable:ident,$expr:expr) => {
-        $variable.st.number_stack.push($expr);
+        $variable.st.number_stack.push($expr)
     };
 }
 
