@@ -36,7 +36,7 @@ pub enum StackMachineError {
     RanOutOfGas { gas_used: u64, gas_limit: GasLimit },
 
     #[error("Unknown StackMachineError")]
-    UnkownError,
+    UnknownError,
 }
 
 pub enum TrapHandled {

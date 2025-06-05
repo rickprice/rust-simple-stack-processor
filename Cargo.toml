@@ -1,6 +1,6 @@
 [package]
 name = "rust-simple-stack-processor"
-version = "0.7.1"
+version = "0.8.0"
 authors = ["Frederick Price <rprice@pricemail.ca>"]
 edition = "2024"
 license = "MIT"
