@@ -1,32 +1,42 @@
 use std::convert::TryFrom;
-use std::num::TryFromIntError;
+use thiserror::Error;
 
 #[cfg(test)]
 mod tests;
 
+#[derive(Debug)]
 pub enum GasLimit {
     Unlimited,
     Limited(u64),
 }
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum StackMachineError {
-    UnkownError,
-    NumericOverflow,
-    NumberStackUnderflow,
-    LoopStackUnderflow,
-    ScratchStackUnderflow,
-    InvalidCellOperation,
-    UnhandledTrap,
-    RanOutOfGas,
-}
+    #[error("Numeric overflow")]
+    NumericOverflow(#[from] std::num::TryFromIntError),
 
-impl From<TryFromIntError> for StackMachineError {
-    fn from(err: TryFromIntError) -> StackMachineError {
-        match err {
-            _ => StackMachineError::NumericOverflow,
-        }
-    }
+    #[error("The internal number stack has underflowed (do you have too many POPs?)")]
+    NumberStackUnderflow,
+
+    #[error("The internal loop stack has underflowed (are you missing a loop start opcode?)")]
+    LoopStackUnderflow,
+
+    #[error(
+        "The internal scratch stack has underflowed (do you have too many scratch stack POPs?)"
+    )]
+    ScratchStackUnderflow,
+
+    #[error("Invalid Cell Operation (perhaps your parameters are incorrect?)")]
+    InvalidCellOperation,
+
+    #[error("Unhandled trap id: {unhandled_trap_id}")]
+    UnhandledTrap { unhandled_trap_id: i64 },
+
+    #[error("You used too much gas during execution (used {gas_used:?}, gas_limit {gas_limit:?}")]
+    RanOutOfGas { gas_used: u64, gas_limit: GasLimit },
+
+    #[error("Unknown StackMachineError")]
+    UnkownError,
 }
 
 pub enum TrapHandled {
@@ -393,7 +403,9 @@ impl StackMachine {
                             return Ok(());
                         }
                     }
-                    return Err(StackMachineError::UnhandledTrap);
+                    return Err(StackMachineError::UnhandledTrap {
+                        unhandled_trap_id: trap_id,
+                    });
                 }
                 Opcode::NOP => {}
                 Opcode::PUSHLP => {
@@ -503,9 +515,12 @@ impl StackMachine {
 
             self.st.gas_used += 1;
 
-            if let GasLimit::Limited(x) = gas_limit {
-                if self.st.gas_used > x {
-                    return Err(StackMachineError::RanOutOfGas);
+            if let GasLimit::Limited(limit) = gas_limit {
+                if self.st.gas_used > limit {
+                    return Err(StackMachineError::RanOutOfGas {
+                        gas_used: self.st.gas_used,
+                        gas_limit: gas_limit,
+                    });
                 }
             }
         }
