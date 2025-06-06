@@ -723,9 +723,9 @@ fn test_unhandled_trap_1() {
 
     // Execute the instructions
     match sm.execute(0, GasLimit::Limited(100)) {
-        Err(StackMachineError::UnhandledTrap {
-            unhandled_trap_id,
-        }) if unhandled_trap_id == 100 => (),
+        Err(StackMachineError::UnhandledTrap { unhandled_trap_id }) if unhandled_trap_id == 100 => {
+            ()
+        }
         r => panic!("Incorrect error type returned {:?}", r),
     }
 }
